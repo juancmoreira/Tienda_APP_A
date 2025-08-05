@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechStore Pro - Catálogo Interactivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #2563eb, #3b82f6, #facc15);
+      color: #1e3a8a;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .header p {
+      color: #fef08a;
+      font-size: 1.1rem;
+    }
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .filters button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .filters button.active {
+      background-color: #facc15;
+      color: #1e3a8a;
+    }
+    .filters button:not(.active) {
+      background-color: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+    .filters button:hover {
+      transform: scale(1.05);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .card .image {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(to right, #dbeafe, #fef9c3);
+      font-size: 3rem;
+    }
+    .card .content {
+      padding: 1.5rem;
+    }
+    .card .category {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+    }
+    .card h3 {
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+      color: #1f2937;
+    }
+    .card p {
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+    .rating {
+      margin: 1rem 0;
+      color: #facc15;
+    }
+    .price-buy {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2563eb;
+    }
+    .buy-button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 1rem;
+      background: linear-gradient(to right, #2563eb, #facc15);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .buy-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background-color: white;
+      margin: 2% auto;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      width: 95%;
+      max-width: 600px;
+      max-height: 95vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s;
+    }
+    
+    @media (max-width: 768px) {
+      .modal-content {
+        margin: 1% auto;
+        width: 98%;
+        max-height: 98vh;
+        padding: 1.5rem;
+        border-radius: 1rem;
+      }
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      z-index: 1001;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    .close:hover {
+      color: #000;
+      background-color: #f3f4f6;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+    .form-row .form-group {
+      flex: 1;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(to right, #2563eb, #facc15);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    .product-summary {
+      background: #f3f4f6;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .success-message {
+      text-align: center;
+      padding: 2rem;
+    }
+    .success-icon {
+      font-size: 4rem;
+      color: #10b981;
+      margin-bottom: 1rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🛍️ TechStore Pro</h1>
+      <p>Los mejores productos tecnológicos</p>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-category="all">Todos</button>
+      <button class="filter-btn" data-category="tecnologia">Tecnología</button>
+      <button class="filter-btn" data-category="audio">Audio</button>
+    </div>
+
+    <div class="grid" id="productGrid">
+      <div class="card" data-category="tecnologia">
+        <div class="image">📱</div>
+        <div class="content">
+          <div class="category">Tecnología</div>
+          <h3>Smartphone Pro Max</h3>
+          <p>Último modelo con cámara avanzada y procesador de alta velocidad</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.8)</div>
+          <div class="price-buy">
+            <div class="price">$899</div>
+            <button class="buy-button" onclick="openModal('Smartphone Pro Max', '$899', '📱')">Comprar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="tecnologia">
+        <div class="image">💻</div>
+        <div class="content">
+          <div class="category">Tecnología</div>
+          <h3>Laptop Gaming</h3>
+          <p>Perfecta para gaming y trabajo profesional con GPU dedicada</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.6)</div>
+          <div class="price-buy">
+            <div class="price">$1,299</div>
+            <button class="buy-button" onclick="openModal('Laptop Gaming', '$1,299', '💻')">Comprar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="audio">
+        <div class="image">🎧</div>
+        <div class="content">
+          <div class="category">Audio</div>
+          <h3>Auriculares Bluetooth</h3>
+          <p>Sonido de alta calidad con cancelación de ruido activa</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.7)</div>
+          <div class="price-buy">
+            <div class="price">$199</div>
+            <button class="buy-button" onclick="openModal('Auriculares Bluetooth', '$199', '🎧')">Comprar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="tecnologia">
+        <div class="image">⌚</div>
+        <div class="content">
+          <div class="category">Tecnología</div>
+          <h3>Smartwatch Pro</h3>
+          <p>Monitor de salud y fitness con GPS integrado</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.5)</div>
+          <div class="price-buy">
+            <div class="price">$299</div>
+            <button class="buy-button" onclick="openModal('Smartwatch Pro', '$299', '⌚')">Comprar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="audio">
+        <div class="image">🔊</div>
+        <div class="content">
+          <div class="category">Audio</div>
+          <h3>Altavoz Inteligente</h3>
+          <p>Asistente de voz con sonido 360° premium</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.4)</div>
+          <div class="price-buy">
+            <div class="price">$149</div>
+            <button class="buy-button" onclick="openModal('Altavoz Inteligente', '$149', '🔊')">Comprar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="tecnologia">
+        <div class="image">📷</div>
+        <div class="content">
+          <div class="category">Tecnología</div>
+          <h3>Cámara Digital 4K</h3>
+          <p>Grabación profesional en 4K con estabilización</p>
+          <div class="rating">⭐⭐⭐⭐⭐ (4.9)</div>
+          <div class="price-buy">
+            <div class="price">$799</div>
+            <button class="buy-button" onclick="openModal('Cámara Digital 4K', '$799', '📷')">Comprar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Compra -->
+  <div id="purchaseModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      
+      <div id="purchaseForm">
+        <h2 style="color: #2563eb; margin-bottom: 1.5rem; margin-top: 0; padding-right: 3rem;">Finalizar Compra</h2>
+        
+        <div class="product-summary" id="productSummary">
+          <!-- Se llenará dinámicamente -->
+        </div>
+
+        <form id="paymentForm">
+          <div class="form-group">
+            <label for="email">Correo Electrónico *</label>
+            <input type="email" id="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="fullName">Nombre Completo *</label>
+            <input type="text" id="fullName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="cardNumber">Número de Tarjeta *</label>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiryDate">Fecha de Vencimiento *</label>
+              <input type="text" id="expiryDate" placeholder="MM/AA" maxlength="5" required>
+            </div>
+            <div class="form-group">
+              <label for="cvv">CVV *</label>
+              <input type="text" id="cvv" placeholder="123" maxlength="4" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cardType">Tipo de Tarjeta *</label>
+            <select id="cardType" required>
+              <option value="">Seleccionar...</option>
+              <option value="visa">Visa</option>
+              <option value="mastercard">Mastercard</option>
+              <option value="amex">American Express</option>
+              <option value="discover">Discover</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Dirección de Envío *</label>
+            <input type="text" id="address" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">Ciudad *</label>
+              <input type="text" id="city" required>
+            </div>
+            <div class="form-group">
+              <label for="zipCode">Código Postal *</label>
+              <input type="text" id="zipCode" required>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            Confirmar Compra 🚀
+          </button>
+        </form>
+      </div>
+
+      <div id="successMessage" class="success-message hidden">
+        <div class="success-icon">✅</div>
+        <h2 style="color: #10b981;">¡Pedido Realizado con Éxito!</h2>
+        <p style="color: #4b5563; margin: 1rem 0;">Tu pedido ha sido procesado correctamente.</p>
+        <p style="color: #4b5563;"><strong>Número de orden:</strong> <span id="orderNumber"></span></p>
+        <p style="color: #4b5563;">Recibirás un correo de confirmación en breve.</p>
+        <button class="submit-btn" onclick="closeModal()" style="margin-top: 1.5rem;">
+          Continuar Comprando
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Funcionalidad de filtros
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remover active de todos los botones
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        // Agregar active al botón clickeado
+        btn.classList.add('active');
+        
+        const category = btn.dataset.category;
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach(card => {
+          if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Variables globales
+    let currentProduct = {};
+
+    // Abrir modal de compra
+    function openModal(productName, price, emoji) {
+      currentProduct = { name: productName, price: price, emoji: emoji };
+      
+      document.getElementById('productSummary').innerHTML = `
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <span style="font-size: 2rem;">${emoji}</span>
+          <div>
+            <h3 style="margin: 0; color: #1f2937;">${productName}</h3>
+            <p style="margin: 0.5rem 0 0 0; font-size: 1.2rem; font-weight: bold; color: #2563eb;">${price}</p>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('purchaseModal').style.display = 'block';
+      document.getElementById('purchaseForm').classList.remove('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+    }
+
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('purchaseModal').style.display = 'none';
+      document.getElementById('paymentForm').reset();
+    }
+
+    // Formatear número de tarjeta
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      e.target.value = formattedValue;
+    });
+
+    // Formatear fecha de vencimiento
+    document.getElementById('expiryDate').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+      }
+      e.target.value = value;
+    });
+
+    // Validar solo números en CVV
+    document.getElementById('cvv').addEventListener('input', function(e) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    // Manejar envío del formulario
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Simular procesamiento
+      const submitBtn = document.querySelector('.submit-btn');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Procesando...';
+      submitBtn.disabled = true;
+      
+      setTimeout(() => {
+        // Generar número de orden aleatorio
+        const orderNumber = 'TS' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        document.getElementById('orderNumber').textContent = orderNumber;
+        
+        // Mostrar mensaje de éxito
+        document.getElementById('purchaseForm').classList.add('hidden');
+        document.getElementById('successMessage').classList.remove('hidden');
+        
+        // Restaurar botón
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }, 2000);
+    });
+
+    // Cerrar modal al hacer clic fuera de él
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('purchaseModal');
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
